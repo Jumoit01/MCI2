@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang=en>
+<head>
+    <meta charset=utf-8>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0," />
+    <title></title>
+    <link rel="stylesheet" href="style.css">
+
+
+</head>
+<body onload = "init()">
+<script src="Vector2.js"></script>
+<script src="ShipMovingTouch.js"></script>
+<script src="Bullet.js"></script>
+<script src="shootBtn.js"></script>
+<script src="zone.js"></script>
+<script src="opponents.js"></script>
+<script src="touch.js"></script>
+<script>
+
+    var canvas;
+ 	var c // c is the canvas' context 2D
+    var container;
+    var halfWidth;
+    var halfHeight;
+    var leftTouchID = -1;
+    var leftTouchPos = new Vector2(0,0);
+    var leftTouchStartPos = new Vector2(0,0);
+    var leftVector = new Vector2(0,0);
+
+
+
+
+setupCanvas();
+
+var mouseX, mouseY,
+	// is this running in a touch capable environment?
+	touchable = 'createTouch' in document,
+	touches = [], // array of touch vectors
+	ship = new ShipMoving(halfWidth, halfHeight),
+	bullets = [],
+	spareBullets = [],
+    allOpp = [],
+    opPos = [];
+
+let shootBtnX = canvas.width - (canvas.width / 10);
+let shootBtnY = canvas.height - 1.5 * (canvas.height / 10);
+let shootBtnD = canvas.height / 10;
+let zoneWidth = canvas.height / 5;
+
+var shootBtn = new shootBtn(shootBtnX, shootBtnY, shootBtnD, c);
+
+var zone = new zone(canvas.width / 2, canvas.height / 2, zoneWidth);
+
+var opp;
+
+let oppN = 5;
+
+    let test1,
+        test2,
+        test3,
+        test4,
+        test5;
+
+
+document.body.appendChild(ship.canvas);
+
+setInterval(draw, 1000/35);
+
+    canvas.addEventListener("touchstart", (evt) => {
+        evt.preventDefault();
+        onTouchStart(evt);
+    }, true);
+
+
+    canvas.addEventListener("touchmove", (evt) => {
+        evt.preventDefault();
+        onTouchMove(evt);
+    }, true);
+
+    canvas.addEventListener("touchend", (evt) => {
+        evt.preventDefault();
+        onTouchEnd(evt);
+    }, true);
+    window.onorientationchange = resetCanvas;
+    window.onresize = resetCanvas;
+
+
+function init(){
+
+}
+
+function draw() {
+
+	c.clearRect(0,0,canvas.width, canvas.height);
+
+	ship.targetVel.copyFrom(leftVector);
+	ship.targetVel.multiplyEq(0.2);
+    ship.update();
+
+
+
+	ship.draw();
+    shootBtn.draw(0);
+    zone.draw();
+
+    if (!(allOpp.length > 0)) {
+        makeOpp();
+    }
+
+    //makeOpp();
+
+	for (var i = 0; i < bullets.length; i++) {
+		var bullet = bullets[i];
+		if(!bullet.enabled) continue;
+		bullet.update();
+		var bullPos = bullet.draw(c);
+        console.log("test"+bullPos);
+		if(!bullet.enabled)
+		{
+			spareBullets.push(bullet);
+
+		}
+	}
+
+    console.log("1:"+allOpp[0]);
+    console.log("2:"+allOpp[1]);
+    console.log("3:"+allOpp[2]);
+    console.log("4:"+allOpp[3]);
+    console.log("5:"+allOpp[4]);
+
+
+    updateOpp(bullPos);
+
+    //updateOpp(allOpp);
+/*
+    test1 = allOpp[4].updateOpp(zoneWidth, bullPos);
+    test2 = allOpp[1].updateOpp(zoneWidth, bullPos);
+    test3 = allOpp[2].updateOpp(zoneWidth, bullPos);
+    test4 = allOpp[3].updateOpp(zoneWidth, bullPos);
+    test5 = allOpp[4].updateOpp(zoneWidth, bullPos);
+*/
+/*
+    for (var i=0; i < oppN; i++) {
+        //var opponent = allOpp[i];
+
+        //console.log(i+" : "+opponent);
+
+        opPos[i] = allOpp[i].updateOpp(zoneWidth, bullPos);
+
+        console.log("x: "+opPos.x);
+        console.log("y: "+opPos.y);
+    }*/
+
+
+
+	if(touchable) {
+
+		for(var i=0; i<touches.length; i++) {
+
+			var touch = touches[i];
+
+			if(touch.identifier == leftTouchID){
+				c.beginPath();
+				c.strokeStyle = "cyan";
+				c.lineWidth = 6;
+				c.arc(leftTouchStartPos.x, leftTouchStartPos.y, 40,0,Math.PI*2,true);
+				c.stroke();
+				c.beginPath();
+				c.strokeStyle = "cyan";
+				c.lineWidth = 2;
+				c.arc(leftTouchStartPos.x, leftTouchStartPos.y, 60,0,Math.PI*2,true);
+				c.stroke();
+				c.beginPath();
+				c.strokeStyle = "cyan";
+				c.arc(leftTouchPos.x, leftTouchPos.y, 40, 0,Math.PI*2, true);
+				c.stroke();
+
+			} else {
+                shootBtn.draw(1)
+            }
+		}
+	} else {
+
+		c.fillStyle	 = "white";
+		c.fillText("mouse : "+mouseX+", "+mouseY, mouseX, mouseY);
+
+	}
+
+    victory();
+
+}
+
+function makeOpp() {
+    var oppNeu;
+    let degree;//Math.floor(Math.random() * 360); //270;//
+    /*
+        degree = 270;//Math.floor(Math.random() * 360); //270;//
+        oppNeu = new opponents(degree);
+        oppNeu.createOpp();
+        allOpp.push(oppNeu);
+    */
+    for (var i = 0; i < oppN; i++) {
+        degree = Math.floor(Math.random() * 360); //270 + (20 * i);//
+        oppNeu = new opponents(degree);
+        oppNeu.createOpp();
+        allOpp.push(oppNeu);
+    }
+}
+
+function updateOpp(bullPos) {
+    for (var i=0; i < oppN; i++) {
+        //var opponent = allOpp[i];
+
+        //console.log(i+" : "+opponent);
+
+        opPos[i] = allOpp[i].updateOpp(zoneWidth, bullPos);
+
+        console.log("x: "+opPos.x);
+        console.log("y: "+opPos.y);
+    }
+}
+
+function makeBullet() {
+
+	var bullet;
+
+	if(spareBullets.length>0) {
+
+		bullet = spareBullets.pop();
+		bullet.reset(ship.pos.x, ship.pos.y, ship.angle);
+
+	} else {
+
+		bullet = new Bullet(ship.pos.x, ship.pos.y, ship.angle);
+		bullets.push(bullet);
+
+	}
+
+	bullet.vel.plusEq(ship.vel);
+}
+
+function victory() {
+    let killed = 0;
+    for (var i = 0; i < oppN; i++) {
+        if (allOpp[i].dead == true) {
+            killed += 1;
+        }
+    }
+    if (killed == oppN) {
+        setTimeout(function(){window.location.href = 'victory.html';}, 500);
+
+    }
+}
+
+
+function setupCanvas() {
+
+	canvas = document.createElement( 'canvas' );
+	c = canvas.getContext( '2d' );
+	container = document.createElement( 'div' );
+	container.className = "container";
+
+	document.body.appendChild( container );
+	container.appendChild(canvas);
+
+	resetCanvas();
+
+	c.strokeStyle = "#ffffff";
+	c.lineWidth =2;
+}
+
+
+</script>
+</body>
+</html>

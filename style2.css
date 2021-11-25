@@ -1,0 +1,22 @@
+body {
+    background-color: black;
+}
+
+.center {
+    margin: auto;
+    width: 300px;
+}
+
+p {
+    font-family: 'Chalkduster';
+    color: whitesmoke;
+    font-size: 80px;
+    text-align: center;
+}
+
+button {
+    font-family: 'Chalkduster';
+    font-size: 25px;
+    width: 300px;
+    height: 50px;
+}
