@@ -49,8 +49,7 @@ Bullet = function(x, y, angle) {
 
 		this.enabled = true; 
 
-		this.life = 50; 
-	
+		this.life = 50;
 	}
 	
 	this.reset(x,y,angle);

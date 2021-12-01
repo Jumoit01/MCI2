@@ -56,6 +56,11 @@ var opp;
 
 let oppN = 5;
 
+let dead = [];
+
+    let xBtn = canvas.width / 10;
+    let yBtn = canvas.height - (canvas.height / 5);
+
     let test1,
         test2,
         test3,
@@ -108,98 +113,65 @@ function draw() {
         makeOpp();
     }
 
-    //makeOpp();
+    for(var i=0; i<touches.length; i++) {
 
-	for (var i = 0; i < bullets.length; i++) {
-		var bullet = bullets[i];
-		if(!bullet.enabled) continue;
-		bullet.update();
-		var bullPos = bullet.draw(c);
+        var touch = touches[i];
+
+        if(touch.identifier == leftTouchID){
+            drawController(xBtn, yBtn, leftTouchPos.x, leftTouchPos.y);
+
+        } else {
+            shootBtn.draw(1);
+        }
+    }
+    drawController(xBtn, yBtn, xBtn, yBtn);
+
+
+
+    for (var i = 0; i < bullets.length; i++) {
+        var bullet = bullets[i];
+        if(!bullet.enabled) continue;
+        bullet.update();
+        var bullPos = bullet.draw(c);
         console.log("test"+bullPos);
-		if(!bullet.enabled)
-		{
-			spareBullets.push(bullet);
+        if(!bullet.enabled)
+        {
+            spareBullets.push(bullet);
 
-		}
-	}
+        }
+    }
 
-    console.log("1:"+allOpp[0]);
-    console.log("2:"+allOpp[1]);
-    console.log("3:"+allOpp[2]);
-    console.log("4:"+allOpp[3]);
-    console.log("5:"+allOpp[4]);
-
-
-    updateOpp(bullPos);
-
-    //updateOpp(allOpp);
-/*
-    test1 = allOpp[4].updateOpp(zoneWidth, bullPos);
-    test2 = allOpp[1].updateOpp(zoneWidth, bullPos);
-    test3 = allOpp[2].updateOpp(zoneWidth, bullPos);
-    test4 = allOpp[3].updateOpp(zoneWidth, bullPos);
-    test5 = allOpp[4].updateOpp(zoneWidth, bullPos);
-*/
-/*
-    for (var i=0; i < oppN; i++) {
-        //var opponent = allOpp[i];
-
-        //console.log(i+" : "+opponent);
-
-        opPos[i] = allOpp[i].updateOpp(zoneWidth, bullPos);
-
-        console.log("x: "+opPos.x);
-        console.log("y: "+opPos.y);
-    }*/
-
-
-
-	if(touchable) {
-
-		for(var i=0; i<touches.length; i++) {
-
-			var touch = touches[i];
-
-			if(touch.identifier == leftTouchID){
-				c.beginPath();
-				c.strokeStyle = "cyan";
-				c.lineWidth = 6;
-				c.arc(leftTouchStartPos.x, leftTouchStartPos.y, 40,0,Math.PI*2,true);
-				c.stroke();
-				c.beginPath();
-				c.strokeStyle = "cyan";
-				c.lineWidth = 2;
-				c.arc(leftTouchStartPos.x, leftTouchStartPos.y, 60,0,Math.PI*2,true);
-				c.stroke();
-				c.beginPath();
-				c.strokeStyle = "cyan";
-				c.arc(leftTouchPos.x, leftTouchPos.y, 40, 0,Math.PI*2, true);
-				c.stroke();
-
-			} else {
-                shootBtn.draw(1)
+        for (var i=0; i < oppN; i++) {
+            if (!(bullPos == null)) {
+                opPos[i] = allOpp[i].updateOpp(zoneWidth, bullPos);
+            } else {
+                opPos[i] = allOpp[i].updateOpp2(zoneWidth);
             }
-		}
-	} else {
-
-		c.fillStyle	 = "white";
-		c.fillText("mouse : "+mouseX+", "+mouseY, mouseX, mouseY);
-
-	}
+        }
 
     victory();
+}
 
+function drawController(xStart, yStart, xNow, yNow) {
+    c.beginPath();
+    c.strokeStyle = "cyan";
+    c.lineWidth = 6;
+    c.arc(xStart, yStart, 40,0,Math.PI*2,true);
+    c.stroke();
+    c.beginPath();
+    c.strokeStyle = "cyan";
+    c.lineWidth = 2;
+    c.arc(xStart, yStart, 60,0,Math.PI*2,true);
+    c.stroke();
+    c.beginPath();
+    c.strokeStyle = "cyan";
+    c.arc(xNow, yNow, 40, 0,Math.PI*2, true);
+    c.stroke();
 }
 
 function makeOpp() {
     var oppNeu;
-    let degree;//Math.floor(Math.random() * 360); //270;//
-    /*
-        degree = 270;//Math.floor(Math.random() * 360); //270;//
-        oppNeu = new opponents(degree);
-        oppNeu.createOpp();
-        allOpp.push(oppNeu);
-    */
+    let degree;
     for (var i = 0; i < oppN; i++) {
         degree = Math.floor(Math.random() * 360); //270 + (20 * i);//
         oppNeu = new opponents(degree);
@@ -208,16 +180,41 @@ function makeOpp() {
     }
 }
 
-function updateOpp(bullPos) {
+function makeOpp() {
+    let degree;
+    for (var i = 0; i < oppN; i++) {
+        degree = Math.floor(Math.random() * 360); //270 + (20 * i);//
+        allOpp[i] = new opponents(degree);
+        allOpp[i].createOpp();
+    }
+}
+
+function drawOppUpdate(bullPos) {
+    for (var i=0; i < oppN; i++) {
+        //var opponent = allOpp[i];
+
+        //console.log(i+" : "+opponent);
+        if (allOpp[i].radius == 15) {
+            opPos[i] = allOpp[i].updateOpp(zoneWidth, bullPos);
+        }
+
+        //console.log("x: "+opPos.x);
+        //console.log("y: "+opPos.y);
+    }
+}
+
+function drawOppUpdate2() {
     for (var i=0; i < oppN; i++) {
         //var opponent = allOpp[i];
 
         //console.log(i+" : "+opponent);
 
-        opPos[i] = allOpp[i].updateOpp(zoneWidth, bullPos);
+        if (allOpp[i].radius == 15) {
+            opPos[i] = allOpp[i].updateOpp2(zoneWidth);
+        }
 
-        console.log("x: "+opPos.x);
-        console.log("y: "+opPos.y);
+        //console.log("x: "+opPos.x);
+        //console.log("y: "+opPos.y);
     }
 }
 

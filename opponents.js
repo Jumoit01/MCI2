@@ -52,7 +52,34 @@ opponents = function (degree) {
         let pos = this.pos = new Vector2(posX,posY);
 
 
-        this.gotHit(bullXY);
+        var test = this.gotHit(bullXY);
+        return pos;
+    }
+
+    this.updateOpp2 = function (zone) {
+
+
+        //this.rotate(distance);
+        if(!this.dead) {
+            distance -= velocity;
+
+            if (distance > (zone + radius)) {
+                this.rotate(distance);
+            } else {
+                //c.clearRect(0,0,canvas.width, canvas.height);
+                window.location.href = 'gameover.html';
+            }
+            c.save();
+            c.restore();
+        }
+
+
+        let posX = startX - Math.sin(degree * Math.PI / 180) * distance;
+        let posY = startY + Math.cos(degree * Math.PI / 180) * distance;
+
+
+
+        let pos = this.pos = new Vector2(posX,posY);
         return pos;
     }
 
@@ -72,6 +99,7 @@ opponents = function (degree) {
             } else {
                 hit = false;
             }
+        return hit;
     }/*
     this.reset = function (c) {
         c.clearRect(0,0,canvas.width, canvas.height);
