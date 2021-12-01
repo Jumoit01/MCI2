@@ -89,7 +89,7 @@ opponents = function (degree) {
         bX = bullXY[0];
         bY = bullXY[1];
 
-        if (bX < (this.pos.x + (radius * 2)) && bX > (this.pos.x - (radius * 2)) && bY < (this.pos.y + (radius * 2)) && bY > (this.pos.y - (radius * 2))) {
+        if (bX < (this.pos.x + (radius * 1.3)) && bX > (this.pos.x - (radius * 1.3)) && bY < (this.pos.y + (radius * 1.3)) && bY > (this.pos.y - (radius * 1.3))) {
         //if (this.pos.x < 1900) {
             hit = true;
             //c.fillStyle="white";
@@ -100,15 +100,5 @@ opponents = function (degree) {
                 hit = false;
             }
         return hit;
-    }/*
-    this.reset = function (c) {
-        c.clearRect(0,0,canvas.width, canvas.height);
-        this.pos.x = 0;
-        this.pos.y = 0;
     }
-    this.dead = function () {
-        var newDead = this.dead;
-        console.log(newDead);
-        return newDead;
-    }*/
 };

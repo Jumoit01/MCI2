@@ -56,6 +56,8 @@ var opp;
 
 let oppN = 5;
 
+let count = 0;
+
 let dead = [];
 
     let xBtn = canvas.width / 10;
@@ -109,6 +111,7 @@ function draw() {
     shootBtn.draw(0);
     zone.draw();
 
+
     if (!(allOpp.length > 0)) {
         makeOpp();
     }
@@ -147,9 +150,32 @@ function draw() {
             } else {
                 opPos[i] = allOpp[i].updateOpp2(zoneWidth);
             }
+            if (allOpp[i].dead == true) {
+                count += 1;
+            }
         }
 
+    drawStatus(count, oppN);
+
+    count = 0;
+
+
     victory();
+}
+
+function drawStatus(x, n) {
+
+    if (x == n) {
+        c.font = "30px Roboto";
+        c.fillStyle = "cyan";
+        c.fillText("Destroyed", 20, 40);
+        c.fillText(x + " / " + n, 20, 70);
+    } else {
+        c.font = "30px Roboto";
+        c.fillStyle = "cyan";
+        c.fillText("Destroyed", 20, 40);
+        c.fillText(x + " / " + n, 20, 70);
+    }
 }
 
 function drawController(xStart, yStart, xNow, yNow) {
@@ -191,32 +217,19 @@ function makeOpp() {
 
 function drawOppUpdate(bullPos) {
     for (var i=0; i < oppN; i++) {
-        //var opponent = allOpp[i];
-
-        //console.log(i+" : "+opponent);
         if (allOpp[i].radius == 15) {
             opPos[i] = allOpp[i].updateOpp(zoneWidth, bullPos);
         }
-
-        //console.log("x: "+opPos.x);
-        //console.log("y: "+opPos.y);
     }
 }
-
 function drawOppUpdate2() {
     for (var i=0; i < oppN; i++) {
-        //var opponent = allOpp[i];
-
-        //console.log(i+" : "+opponent);
-
         if (allOpp[i].radius == 15) {
             opPos[i] = allOpp[i].updateOpp2(zoneWidth);
         }
-
-        //console.log("x: "+opPos.x);
-        //console.log("y: "+opPos.y);
     }
 }
+
 
 function makeBullet() {
 
