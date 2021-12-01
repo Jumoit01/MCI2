@@ -8,278 +8,48 @@
 
 
 </head>
-<body onload = "init()">
-<script src="Vector2.js"></script>
-<script src="ShipMovingTouch.js"></script>
-<script src="Bullet.js"></script>
-<script src="shootBtn.js"></script>
-<script src="zone.js"></script>
-<script src="opponents.js"></script>
-<script src="touch.js"></script>
+<body>
 <script>
+    let canvas,
+        c,
+        container;
+    let halfWidth,
+        halfHeight;
 
-    var canvas;
- 	var c // c is the canvas' context 2D
-    var container;
-    var halfWidth;
-    var halfHeight;
-    var leftTouchID = -1;
-    var leftTouchPos = new Vector2(0,0);
-    var leftTouchStartPos = new Vector2(0,0);
-    var leftVector = new Vector2(0,0);
+    setupCanvas();
 
-
-
-
-setupCanvas();
-
-var mouseX, mouseY,
-	// is this running in a touch capable environment?
-	touchable = 'createTouch' in document,
-	touches = [], // array of touch vectors
-	ship = new ShipMoving(halfWidth, halfHeight),
-	bullets = [],
-	spareBullets = [],
-    allOpp = [],
-    opPos = [];
-
-let shootBtnX = canvas.width - (canvas.width / 10);
-let shootBtnY = canvas.height - 1.5 * (canvas.height / 10);
-let shootBtnD = canvas.height / 10;
-let zoneWidth = canvas.height / 5;
-
-var shootBtn = new shootBtn(shootBtnX, shootBtnY, shootBtnD, c);
-
-var zone = new zone(canvas.width / 2, canvas.height / 2, zoneWidth);
-
-var opp;
-
-let oppN = 5;
-
-let count = 0;
-
-let dead = [];
-
-    let xBtn = canvas.width / 10;
-    let yBtn = canvas.height - (canvas.height / 5);
-
-    let test1,
-        test2,
-        test3,
-        test4,
-        test5;
-
-
-document.body.appendChild(ship.canvas);
-
-setInterval(draw, 1000/35);
 
     canvas.addEventListener("touchstart", (evt) => {
         evt.preventDefault();
-        onTouchStart(evt);
+        window.location.href = 'game.html';
     }, true);
 
+    function setupCanvas() {
 
-    canvas.addEventListener("touchmove", (evt) => {
-        evt.preventDefault();
-        onTouchMove(evt);
-    }, true);
+        canvas = document.createElement( 'canvas' );
+        c = canvas.getContext( '2d' );
+        container = document.createElement( 'div' );
+        container.className = "container";
 
-    canvas.addEventListener("touchend", (evt) => {
-        evt.preventDefault();
-        onTouchEnd(evt);
-    }, true);
-    window.onorientationchange = resetCanvas;
-    window.onresize = resetCanvas;
+        document.body.appendChild( container );
+        container.appendChild(canvas);
 
+        resetCanvas();
 
-function init(){
-
-}
-
-function draw() {
-
-	c.clearRect(0,0,canvas.width, canvas.height);
-
-	ship.targetVel.copyFrom(leftVector);
-	ship.targetVel.multiplyEq(0.2);
-    ship.update();
-
-
-
-	ship.draw();
-    shootBtn.draw(0);
-    zone.draw();
-
-
-    if (!(allOpp.length > 0)) {
-        makeOpp();
+        c.strokeStyle = "#ffffff";
+        c.lineWidth =2;
     }
+    function resetCanvas () {
+        // resize the canvas - but remember - this clears the canvas too.
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-    for(var i=0; i<touches.length; i++) {
+        halfWidth = canvas.width/2;
+        halfHeight = canvas.height/2;
 
-        var touch = touches[i];
-
-        if(touch.identifier == leftTouchID){
-            drawController(xBtn, yBtn, leftTouchPos.x, leftTouchPos.y);
-
-        } else {
-            shootBtn.draw(1);
-        }
+        //make sure we scroll to the top left.
+        window.scrollTo(0,0);
     }
-    drawController(xBtn, yBtn, xBtn, yBtn);
-
-
-
-    for (var i = 0; i < bullets.length; i++) {
-        var bullet = bullets[i];
-        if(!bullet.enabled) continue;
-        bullet.update();
-        var bullPos = bullet.draw(c);
-        console.log("test"+bullPos);
-        if(!bullet.enabled)
-        {
-            spareBullets.push(bullet);
-
-        }
-    }
-
-        for (var i=0; i < oppN; i++) {
-            if (!(bullPos == null)) {
-                opPos[i] = allOpp[i].updateOpp(zoneWidth, bullPos);
-            } else {
-                opPos[i] = allOpp[i].updateOpp2(zoneWidth);
-            }
-            if (allOpp[i].dead == true) {
-                count += 1;
-            }
-        }
-
-    drawStatus(count, oppN);
-
-    count = 0;
-
-
-    victory();
-}
-
-function drawStatus(x, n) {
-
-    if (x == n) {
-        c.font = "30px Roboto";
-        c.fillStyle = "cyan";
-        c.fillText("Destroyed", 20, 40);
-        c.fillText(x + " / " + n, 20, 70);
-    } else {
-        c.font = "30px Roboto";
-        c.fillStyle = "cyan";
-        c.fillText("Destroyed", 20, 40);
-        c.fillText(x + " / " + n, 20, 70);
-    }
-}
-
-function drawController(xStart, yStart, xNow, yNow) {
-    c.beginPath();
-    c.strokeStyle = "cyan";
-    c.lineWidth = 6;
-    c.arc(xStart, yStart, 40,0,Math.PI*2,true);
-    c.stroke();
-    c.beginPath();
-    c.strokeStyle = "cyan";
-    c.lineWidth = 2;
-    c.arc(xStart, yStart, 60,0,Math.PI*2,true);
-    c.stroke();
-    c.beginPath();
-    c.strokeStyle = "cyan";
-    c.arc(xNow, yNow, 40, 0,Math.PI*2, true);
-    c.stroke();
-}
-
-function makeOpp() {
-    var oppNeu;
-    let degree;
-    for (var i = 0; i < oppN; i++) {
-        degree = Math.floor(Math.random() * 360); //270 + (20 * i);//
-        oppNeu = new opponents(degree);
-        oppNeu.createOpp();
-        allOpp.push(oppNeu);
-    }
-}
-
-function makeOpp() {
-    let degree;
-    for (var i = 0; i < oppN; i++) {
-        degree = Math.floor(Math.random() * 360); //270 + (20 * i);//
-        allOpp[i] = new opponents(degree);
-        allOpp[i].createOpp();
-    }
-}
-
-function drawOppUpdate(bullPos) {
-    for (var i=0; i < oppN; i++) {
-        if (allOpp[i].radius == 15) {
-            opPos[i] = allOpp[i].updateOpp(zoneWidth, bullPos);
-        }
-    }
-}
-function drawOppUpdate2() {
-    for (var i=0; i < oppN; i++) {
-        if (allOpp[i].radius == 15) {
-            opPos[i] = allOpp[i].updateOpp2(zoneWidth);
-        }
-    }
-}
-
-
-function makeBullet() {
-
-	var bullet;
-
-	if(spareBullets.length>0) {
-
-		bullet = spareBullets.pop();
-		bullet.reset(ship.pos.x, ship.pos.y, ship.angle);
-
-	} else {
-
-		bullet = new Bullet(ship.pos.x, ship.pos.y, ship.angle);
-		bullets.push(bullet);
-
-	}
-
-	bullet.vel.plusEq(ship.vel);
-}
-
-function victory() {
-    let killed = 0;
-    for (var i = 0; i < oppN; i++) {
-        if (allOpp[i].dead == true) {
-            killed += 1;
-        }
-    }
-    if (killed == oppN) {
-        setTimeout(function(){window.location.href = 'victory.html';}, 500);
-
-    }
-}
-
-
-function setupCanvas() {
-
-	canvas = document.createElement( 'canvas' );
-	c = canvas.getContext( '2d' );
-	container = document.createElement( 'div' );
-	container.className = "container";
-
-	document.body.appendChild( container );
-	container.appendChild(canvas);
-
-	resetCanvas();
-
-	c.strokeStyle = "#ffffff";
-	c.lineWidth =2;
-}
-
 
 </script>
 </body>
